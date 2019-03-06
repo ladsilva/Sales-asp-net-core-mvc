@@ -82,5 +82,24 @@ namespace SalesWebMvc.Controllers
             _sellerService.Remove(id); // Chama método para remover dado do Sellerservice
             return RedirectToAction(nameof(Index)); // Redireciona para a tela Index dos Sellers
         }
+
+        //GET
+        public IActionResult Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // Recupera o Seller do banco através do id
+            var obj = _sellerService.FindById(id.Value);
+
+            if (obj == null)
+            {
+                return NotFound();
+            }
+            // Se objeto encontrado, retorna a página com os dados do objeto
+            return View(obj);
+        }
     }
 }

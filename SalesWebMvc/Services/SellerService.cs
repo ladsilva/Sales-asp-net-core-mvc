@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SalesWebMvc.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace SalesWebMvc.Services
 {
@@ -27,7 +28,9 @@ namespace SalesWebMvc.Services
         {
             // Objeto _context (do tipo SalesWebMvcContext) acessa o banco, pega o seller da tabela Seller de acordo com o id
             // Se não encontrar retorna nulo
-            return _context.Seller.FirstOrDefault( codid => codid.Id == id );
+            // Uso do Include é o eager loading, faz um join com department para que seja exibido na tela
+            // Carrega outros objetos atrelados ao objeto principal(Join das tabelas)
+            return _context.Seller.Include(obj => obj.Department).FirstOrDefault( codid => codid.Id == id );
         }
 
         public void Insert (Seller obj)
