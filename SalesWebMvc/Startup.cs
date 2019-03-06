@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using SalesWebMvc.Models;
+using SalesWebMvc.Data;
 
 namespace SalesWebMvc
 {
@@ -40,14 +41,18 @@ namespace SalesWebMvc
             options.UseMySql(Configuration.GetConnectionString("SalesWebMvcContext"), builder =>
                         builder.MigrationsAssembly("SalesWebMvc")));
             //options.UseSqlServer(Configuration.GetConnectionString("SalesWebMvcContext")));
+
+            // Registra o serviço(SeedingService usado para popular os dados do banco)no serviço de injeção de dependência da aplicação
+            services.AddScoped<SeedingService>(); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, SeedingService seedingservice)
         {
-            if (env.IsDevelopment())
+            if (env.IsDevelopment()) // Testa se é perfil de desenvolvimento
             {
                 app.UseDeveloperExceptionPage();
+                seedingservice.Seed(); // Se for perfil de desenvolvimento populará o banco
             }
             else
             {
