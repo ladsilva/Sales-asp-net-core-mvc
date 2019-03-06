@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using SalesWebMvc.Services;
 using SalesWebMvc.Models;
 using SalesWebMvc.Models.ViewModels;
+using SalesWebMvc.Services.Exceptions;
 
 namespace SalesWebMvc.Controllers
 {
@@ -44,16 +42,6 @@ namespace SalesWebMvc.Controllers
             // Redireciona a tela Index, contendo os dados dos Sellers
             return RedirectToAction(nameof(Index)); //Nameof, melhora a manutenção,não exige que seja feita alteração neste ponto, caso o titulo do método index seja alterado
         }
-
-        // POST
-        /*[HttpPost] // Anotation - informando post
-        [ValidateAntiForgeryToken] // Previne que sejam feitos ataques csrf, evita o envio de dados maliciosos durante a sessão de autenticação
-        public IActionResult Delete(Seller seller)
-        {
-            _sellerService.Remove(seller); // Chama o método Delete do Service(SellerService)
-            // Retorna a tela Index, contendo os dados dos Sellers
-            return RedirectToAction(nameof(Index)); //Nameof, melhora a manutenção,não exige que seja feita alteração neste ponto, caso o titulo do método index seja alterado
-        }*/
 
         // GET
         public IActionResult Delete(int? id) // int id é opcional uso do "?"
@@ -100,6 +88,59 @@ namespace SalesWebMvc.Controllers
             }
             // Se objeto encontrado, retorna a página com os dados do objeto
             return View(obj);
+        }
+
+        //GET
+        public IActionResult Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // Recupera o Seller do banco através do id em obj
+            var obj = _sellerService.FindById(id.Value);
+
+            if (obj == null)
+            {
+                return NotFound();
+            }
+
+            // Recupera lista de departments para seleção
+            List<Department> listdepartments = _departmentService.FindAll();
+
+            // 
+            SellerFormViewModel viewmodel = new SellerFormViewModel
+            {
+                Seller = obj, // Abaste os dados do Seller com o objeto obj recuperado pelo id(acima)
+                Departments = listdepartments
+            }; // Instancia viewmodel do tipo SellerFormViewModel com os dados de departments do banco
+            return View(viewmodel);
+
+        }
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, Seller seller)
+        {
+            if (id != seller.Id) // Testa se o id é igual ao id do objeto Seller
+            {
+                return BadRequest();
+            }
+            try
+            {
+                _sellerService.Update(seller); // Chama método para atualizar dado do Sellerservice
+                return RedirectToAction(nameof(Index)); // Redireciona para a tela Index dos Sellers
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+            catch(DbConcurrencyException)
+            {
+                return BadRequest();
+            }
         }
     }
 }

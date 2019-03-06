@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SalesWebMvc.Models;
 using Microsoft.EntityFrameworkCore;
+using SalesWebMvc.Services.Exceptions;
 
 namespace SalesWebMvc.Services
 {
@@ -49,8 +50,23 @@ namespace SalesWebMvc.Services
 
         public void Update(Seller obj)
         {
-            _context.Update(obj); // Atualiza o Seller
-            _context.SaveChanges(); // Atualiza e grava o novo Seller no banco de dados
+
+            // Se não existir o registro no banco gera uma exceção NotFoundException
+            if (! _context.Seller.Any(x => x.Id == obj.Id )) // Any testa se existe registro no banco
+            {
+                throw new NotFoundException ("Id not found");
+            }
+            try
+            {
+                _context.Update(obj); // Atualiza o Seller
+                _context.SaveChanges(); // Atualiza e grava o Seller no banco de dados
+            }
+            // Se ocorrer exceçao do banco por conflito de concorrência no banco(DbUpdateConcurrencyException)
+            // Recupera a exceção de banco e a relança como uma exceção de nível de serviço(separando as camadas)
+            catch (DbUpdateConcurrencyException e)
+            {
+                throw new DbConcurrencyException(e.Message); // Lança a exceção em nível de serviço retorna(SellerController controla a exceção de serviço)
+            }
         }
     }
 }
