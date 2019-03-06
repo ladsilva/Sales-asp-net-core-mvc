@@ -1,4 +1,4 @@
-﻿@model SalesWebMvc.Models.Seller
+﻿@model SalesWebMvc.Models.ViewModels.SellerFormViewModel
 
 @{
     ViewData["Title"] = "Create";
@@ -16,22 +16,28 @@
         <form asp-action="Create">
             <!--Formulário htm, chama ação Create do método post-->
             <div class=" form-group">
-                <label asp-for="Name" class="control-label"></label> <!--Define o lable que irá aparecer ao digitar (label asp-for=Name)-->
-                <input asp-for="Name" class=" form-control" />
+                <label asp-for="Seller.Name" class="control-label"></label> <!--Define o lable que irá aparecer ao digitar (label asp-for=Name)-->
+                <input asp-for="Seller.Name" class=" form-control" />
             </div>
             <div class=" form-group">
-                <label asp-for="Email" class="control-label"></label> <!--Define o lable que irá aparecer ao digitar (label asp-for=Name)-->
-                <input asp-for="Email" class=" form-control" />
+                <label asp-for="Seller.Email" class="control-label"></label> <!--Define o lable que irá aparecer ao digitar (label asp-for=Name)-->
+                <input asp-for="Seller.Email" class=" form-control" />
             </div>
             <div class=" form-group">
-                <label asp-for="BirthDate" class="control-label"></label> <!--Define o lable que irá aparecer ao digitar (label asp-for=Name)-->
-                <input asp-for="BirthDate" class=" form-control" />
+                <label asp-for="Seller.BirthDate" class="control-label"></label> <!--Define o lable que irá aparecer ao digitar (label asp-for=Name)-->
+                <input asp-for="Seller.BirthDate" class=" form-control" />
             </div>
             <div class=" form-group">
-                <label asp-for="BaseSalary" class="control-label"></label> <!--Define o lable que irá aparecer ao digitar (label asp-for=Name)-->
-                <input asp-for="BaseSalary" class=" form-control" />
+                <label asp-for="Seller.BaseSalary" class="control-label"></label> <!--Define o lable que irá aparecer ao digitar (label asp-for=Name)-->
+                <input asp-for="Seller.BaseSalary" class=" form-control" />
             </div>
-            <div class=" form-group">             
+            <div class="form-group">
+                <label asp-for="Seller.DepartmentId" class="control-label"></label>
+                <!--select asp-for - caixa de seleção-->
+                <select asp-for="Seller.DepartmentId"
+                        asp-items="@(new SelectList(Model.Departments,"Id", "Name"))" class="form-control"></select> <!--Seleciona(SelectList) dados da lista de departaments(Model.Departments), "ID"-campo chave tabela banco, "Name"-display do campo-->
+            </div>
+            <div class=" form-group">
                 <input type="submit" value="Create" class="btn btn-default" />
             </div>
         </form>        

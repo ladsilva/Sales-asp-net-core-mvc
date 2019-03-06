@@ -5,17 +5,20 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SalesWebMvc.Services;
 using SalesWebMvc.Models;
+using SalesWebMvc.Models.ViewModels;
 
 namespace SalesWebMvc.Controllers
 {
     public class SellersController : Controller
     {
         private readonly SellerService _sellerService;
+        private readonly DepartmentService _departmentService;
 
-        public SellersController(SellerService sellerService)// Injeção de dependência
+        public SellersController(SellerService sellerService, DepartmentService departmentService)// Injeção de dependência
         {
             _sellerService = sellerService;
-        }
+            _departmentService = departmentService;
+        }      
 
         public IActionResult Index()
         {
@@ -27,7 +30,9 @@ namespace SalesWebMvc.Controllers
         // GET
         public IActionResult Create()
         {
-            return View();
+            var listdepartments = _departmentService.FindAll(); // Recuper os departments do banco
+            var viewmodel = new SellerFormViewModel { Departments = listdepartments }; // Instancia viewmodel do tipo SellerFormViewModel com os dados de departments do banco
+            return View(viewmodel); // Passa para tela, os dados de departments já instanciados
         }
 
         // POST
@@ -36,7 +41,7 @@ namespace SalesWebMvc.Controllers
         public IActionResult Create(Seller seller )
         {
             _sellerService.Insert(seller); // Chama o método Insert do Service(SellerService)
-            // Retorna a tela Index, contendo os dados dos Sellers
+            // Redireciona a tela Index, contendo os dados dos Sellers
             return RedirectToAction(nameof(Index)); //Nameof, melhora a manutenção,não exige que seja feita alteração neste ponto, caso o titulo do método index seja alterado
         }
 
