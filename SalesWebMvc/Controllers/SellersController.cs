@@ -18,7 +18,7 @@ namespace SalesWebMvc.Controllers
         {
             _sellerService = sellerService;
             _departmentService = departmentService;
-        }      
+        }
 
         public IActionResult Index()
         {
@@ -38,7 +38,7 @@ namespace SalesWebMvc.Controllers
         // POST
         [HttpPost] // Anotation - informando post
         [ValidateAntiForgeryToken] // Previne que sejam feitos ataques csrf, evita o envio de dados maliciosos durante a sessão de autenticação
-        public IActionResult Create(Seller seller )
+        public IActionResult Create(Seller seller)
         {
             _sellerService.Insert(seller); // Chama o método Insert do Service(SellerService)
             // Redireciona a tela Index, contendo os dados dos Sellers
@@ -46,13 +46,41 @@ namespace SalesWebMvc.Controllers
         }
 
         // POST
-        [HttpPost] // Anotation - informando post
+        /*[HttpPost] // Anotation - informando post
         [ValidateAntiForgeryToken] // Previne que sejam feitos ataques csrf, evita o envio de dados maliciosos durante a sessão de autenticação
         public IActionResult Delete(Seller seller)
         {
-            _sellerService.Delete(seller); // Chama o método Delete do Service(SellerService)
+            _sellerService.Remove(seller); // Chama o método Delete do Service(SellerService)
             // Retorna a tela Index, contendo os dados dos Sellers
             return RedirectToAction(nameof(Index)); //Nameof, melhora a manutenção,não exige que seja feita alteração neste ponto, caso o titulo do método index seja alterado
+        }*/
+
+        // GET
+        public IActionResult Delete(int? id) // int id é opcional uso do "?"
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // Recupera o Seller do banco através do id
+            var obj = _sellerService.FindById(id.Value);
+
+            if (obj == null)
+            {
+                return NotFound();
+            }
+            // Se objeto encontrado, retorna a página com os dados do objeto
+            return View(obj);
+        }
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id)
+        {
+            _sellerService.Remove(id); // Chama método para remover dado do Sellerservice
+            return RedirectToAction(nameof(Index)); // Redireciona para a tela Index dos Sellers
         }
     }
 }

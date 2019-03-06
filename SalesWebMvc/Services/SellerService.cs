@@ -22,16 +22,26 @@ namespace SalesWebMvc.Services
             return _context.Seller.ToList();
         }
 
+        // Método para retornar um vendedor(Seller)
+        public Seller FindById(int id)
+        {
+            // Objeto _context (do tipo SalesWebMvcContext) acessa o banco, pega o seller da tabela Seller de acordo com o id
+            // Se não encontrar retorna nulo
+            return _context.Seller.FirstOrDefault( codid => codid.Id == id );
+        }
+
         public void Insert (Seller obj)
         {            
             _context.Add(obj); // Insere o Seller
             _context.SaveChanges(); // Insere e grava o novo Seller no banco de dados
         }
 
-        public void Delete(Seller obj)
+        // Remove a partir do id do Seller
+        public void Remove(int id)
         {
-            _context.Remove(obj); // Remove o Seller
-            _context.SaveChanges(); // Remove e grava o novo Seller no banco de dados
+            var obj = _context.Seller.Find(id); // Recupera o Seller de acordo com o id
+            _context.Seller.Remove(obj); // Remove o Seller retorno em obj
+            _context.SaveChanges(); // Remove e grava a remoção no banco de dados
         }
 
         public void Update(Seller obj)
