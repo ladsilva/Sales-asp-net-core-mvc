@@ -4,6 +4,7 @@ using SalesWebMvc.Services;
 using SalesWebMvc.Models;
 using SalesWebMvc.Models.ViewModels;
 using SalesWebMvc.Services.Exceptions;
+using System.Diagnostics;
 
 namespace SalesWebMvc.Controllers
 {
@@ -48,7 +49,7 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not provided"});
             }
 
             // Recupera o Seller do banco através do id
@@ -56,7 +57,7 @@ namespace SalesWebMvc.Controllers
 
             if (obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
             }
             // Se objeto encontrado, retorna a página com os dados do objeto
             return View(obj);
@@ -76,7 +77,7 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not provided" });
             }
 
             // Recupera o Seller do banco através do id
@@ -84,7 +85,7 @@ namespace SalesWebMvc.Controllers
 
             if (obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
             }
             // Se objeto encontrado, retorna a página com os dados do objeto
             return View(obj);
@@ -95,7 +96,7 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not provided" });
             }
 
             // Recupera o Seller do banco através do id em obj
@@ -103,13 +104,13 @@ namespace SalesWebMvc.Controllers
 
             if (obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
             }
 
             // Recupera lista de departments para seleção
             List<Department> listdepartments = _departmentService.FindAll();
 
-            // 
+            // Instancia objeto sellerformviewmodel
             SellerFormViewModel viewmodel = new SellerFormViewModel
             {
                 Seller = obj, // Abaste os dados do Seller com o objeto obj recuperado pelo id(acima)
@@ -126,21 +127,35 @@ namespace SalesWebMvc.Controllers
         {
             if (id != seller.Id) // Testa se o id é igual ao id do objeto Seller
             {
-                return BadRequest();
+                return RedirectToAction(nameof(Error), new { message = "Id mismatch" });
             }
             try
             {
                 _sellerService.Update(seller); // Chama método para atualizar dado do Sellerservice
                 return RedirectToAction(nameof(Index)); // Redireciona para a tela Index dos Sellers
             }
-            catch (NotFoundException)
+            catch (NotFoundException e)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), e.Message);
             }
-            catch(DbConcurrencyException)
+            catch(DbConcurrencyException e)
             {
-                return BadRequest();
+                return RedirectToAction(nameof(Error), e.Message);
             }
+        }
+
+        // GET
+        public IActionResult Error(string message)
+        {
+            var viewmodel = new ErrorViewModel
+
+            // ? torna o id opcional, ?? operador de coalescencia nula
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, // Recupera o id interno da requisição
+                Message = message
+            };
+
+            return View(viewmodel);
         }
     }
 }
