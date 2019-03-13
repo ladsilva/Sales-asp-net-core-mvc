@@ -39,6 +39,14 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken] // Previne que sejam feitos ataques csrf, evita o envio de dados maliciosos durante a sessão de autenticação
         public IActionResult Create(Seller seller)
         {
+            // Validação caso o javascript não esteja habilitado
+            if (!ModelState.IsValid)
+            {
+                var departments = _departmentService.FindAll();
+                var selerviewmodel = new SellerFormViewModel { Seller = seller, Departments = departments };
+                return View(selerviewmodel);
+            }
+
             _sellerService.Insert(seller); // Chama o método Insert do Service(SellerService)
             // Redireciona a tela Index, contendo os dados dos Sellers
             return RedirectToAction(nameof(Index)); //Nameof, melhora a manutenção,não exige que seja feita alteração neste ponto, caso o titulo do método index seja alterado
@@ -125,6 +133,13 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Seller seller)
         {
+            // Validação caso o javascript não esteja habilitado
+            if (!ModelState.IsValid)
+            {
+                var departments = _departmentService.FindAll();
+                var selerviewmodel = new SellerFormViewModel { Seller = seller, Departments = departments };
+                return View(selerviewmodel);
+            }
             if (id != seller.Id) // Testa se o id é igual ao id do objeto Seller
             {
                 return RedirectToAction(nameof(Error), new { message = "Id mismatch" });
