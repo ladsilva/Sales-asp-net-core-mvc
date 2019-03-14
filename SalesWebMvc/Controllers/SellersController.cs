@@ -7,6 +7,7 @@ using SalesWebMvc.Models;
 using SalesWebMvc.Models.ViewModels;
 using SalesWebMvc.Services.Exceptions;
 using System.Diagnostics;
+using System;
 
 namespace SalesWebMvc.Controllers
 {
@@ -78,8 +79,15 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            await _sellerService.RemoveAsync(id); // Chama método para remover dado do Sellerservice
-            return RedirectToAction(nameof(Index)); // Redireciona para a tela Index dos Sellers
+            try
+            {
+                await _sellerService.RemoveAsync(id); // Chama método para remover dado do Sellerservice
+                return RedirectToAction(nameof(Index)); // Redireciona para a tela Index dos Sellers
+            }
+            catch (IntegrityException e)
+            {
+                return RedirectToAction(nameof(Error), new { message = e.Message});
+            }
         }
 
         //GET
@@ -151,13 +159,9 @@ namespace SalesWebMvc.Controllers
                 await _sellerService.UpdateAsync(seller); // Chama método para atualizar dado do Sellerservice
                 return RedirectToAction(nameof(Index)); // Redireciona para a tela Index dos Sellers
             }
-            catch (NotFoundException e)
+            catch(ApplicationException e)
             {
-                return RedirectToAction(nameof(Error), e.Message);
-            }
-            catch(DbConcurrencyException e)
-            {
-                return RedirectToAction(nameof(Error), e.Message);
+                return RedirectToAction(nameof(Error), new { message = e.Message });
             }
         }
 
