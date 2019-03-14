@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SalesWebMvc.Services;
 using SalesWebMvc.Models;
 using SalesWebMvc.Models.ViewModels;
@@ -19,17 +21,17 @@ namespace SalesWebMvc.Controllers
             _departmentService = departmentService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             // Operação retorna uma lista contendo todos os Sellers do banco, recuperados pelo service SellerService
-            var list = _sellerService.FindAll();
+            var list = await _sellerService.FindAllAsync();
             return View(list);
         }
 
         // GET
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            var listdepartments = _departmentService.FindAll(); // Recuper os departments do banco
+            var listdepartments = await _departmentService.FindAllAsync(); // Recuper os departments do banco
             var viewmodel = new SellerFormViewModel { Departments = listdepartments }; // Instancia viewmodel do tipo SellerFormViewModel com os dados de departments do banco
             return View(viewmodel); // Passa para tela, os dados de departments já instanciados
         }
@@ -37,23 +39,23 @@ namespace SalesWebMvc.Controllers
         // POST
         [HttpPost] // Anotation - informando post
         [ValidateAntiForgeryToken] // Previne que sejam feitos ataques csrf, evita o envio de dados maliciosos durante a sessão de autenticação
-        public IActionResult Create(Seller seller)
+        public async Task<IActionResult> Create(Seller seller)
         {
             // Validação caso o javascript não esteja habilitado
             if (!ModelState.IsValid)
             {
-                var departments = _departmentService.FindAll();
+                var departments = await _departmentService.FindAllAsync();
                 var selerviewmodel = new SellerFormViewModel { Seller = seller, Departments = departments };
                 return View(selerviewmodel);
             }
 
-            _sellerService.Insert(seller); // Chama o método Insert do Service(SellerService)
+            await _sellerService.InsertAsync(seller); // Chama o método Insert do Service(SellerService)
             // Redireciona a tela Index, contendo os dados dos Sellers
             return RedirectToAction(nameof(Index)); //Nameof, melhora a manutenção,não exige que seja feita alteração neste ponto, caso o titulo do método index seja alterado
         }
 
         // GET
-        public IActionResult Delete(int? id) // int id é opcional uso do "?"
+        public async Task<IActionResult> Delete(int? id) // int id é opcional uso do "?"
         {
             if (id == null)
             {
@@ -61,7 +63,7 @@ namespace SalesWebMvc.Controllers
             }
 
             // Recupera o Seller do banco através do id
-            var obj = _sellerService.FindById(id.Value);
+            var obj = await _sellerService.FindByIdAsync(id.Value);
 
             if (obj == null)
             {
@@ -74,14 +76,14 @@ namespace SalesWebMvc.Controllers
         // POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            _sellerService.Remove(id); // Chama método para remover dado do Sellerservice
+            await _sellerService.RemoveAsync(id); // Chama método para remover dado do Sellerservice
             return RedirectToAction(nameof(Index)); // Redireciona para a tela Index dos Sellers
         }
 
         //GET
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
@@ -89,7 +91,7 @@ namespace SalesWebMvc.Controllers
             }
 
             // Recupera o Seller do banco através do id
-            var obj = _sellerService.FindById(id.Value);
+            var obj = await _sellerService.FindByIdAsync(id.Value);
 
             if (obj == null)
             {
@@ -100,7 +102,7 @@ namespace SalesWebMvc.Controllers
         }
 
         //GET
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
@@ -108,7 +110,7 @@ namespace SalesWebMvc.Controllers
             }
 
             // Recupera o Seller do banco através do id em obj
-            var obj = _sellerService.FindById(id.Value);
+            var obj = await _sellerService.FindByIdAsync(id.Value);
 
             if (obj == null)
             {
@@ -116,7 +118,7 @@ namespace SalesWebMvc.Controllers
             }
 
             // Recupera lista de departments para seleção
-            List<Department> listdepartments = _departmentService.FindAll();
+            List<Department> listdepartments = await _departmentService.FindAllAsync();
 
             // Instancia objeto sellerformviewmodel
             SellerFormViewModel viewmodel = new SellerFormViewModel
@@ -131,12 +133,12 @@ namespace SalesWebMvc.Controllers
         // POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Seller seller)
+        public async Task<IActionResult> Edit(int id, Seller seller)
         {
             // Validação caso o javascript não esteja habilitado
             if (!ModelState.IsValid)
             {
-                var departments = _departmentService.FindAll();
+                var departments = await _departmentService.FindAllAsync();
                 var selerviewmodel = new SellerFormViewModel { Seller = seller, Departments = departments };
                 return View(selerviewmodel);
             }
@@ -146,7 +148,7 @@ namespace SalesWebMvc.Controllers
             }
             try
             {
-                _sellerService.Update(seller); // Chama método para atualizar dado do Sellerservice
+                await _sellerService.UpdateAsync(seller); // Chama método para atualizar dado do Sellerservice
                 return RedirectToAction(nameof(Index)); // Redireciona para a tela Index dos Sellers
             }
             catch (NotFoundException e)

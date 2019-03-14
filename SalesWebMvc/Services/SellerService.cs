@@ -18,48 +18,48 @@ namespace SalesWebMvc.Services
         }
 
         // Método para retornar todos os vendedores(Sellers)
-        public List<Seller> FindAll()
+        public async Task<List<Seller>> FindAllAsync()
         {
             // Objeto _context (do tipo SalesWebMvcContext) acessa o banco, pegando dados da tabela Seller, e joga para uma lista
-            return _context.Seller.ToList();
+            return await _context.Seller.ToListAsync();
         }
 
         // Método para retornar um vendedor(Seller)
-        public Seller FindById(int id)
+        public async Task<Seller> FindByIdAsync(int id)
         {
             // Objeto _context (do tipo SalesWebMvcContext) acessa o banco, pega o seller da tabela Seller de acordo com o id
             // Se não encontrar retorna nulo
             // Uso do Include é o eager loading, faz um join com department para que seja exibido na tela
             // Carrega outros objetos atrelados ao objeto principal(Join das tabelas)
-            return _context.Seller.Include(obj => obj.Department).FirstOrDefault( codid => codid.Id == id );
+            return await _context.Seller.Include(obj => obj.Department).FirstOrDefaultAsync( codid => codid.Id == id );
         }
 
-        public void Insert (Seller obj)
+        public async Task InsertAsync (Seller obj)
         {            
             _context.Add(obj); // Insere o Seller
-            _context.SaveChanges(); // Insere e grava o novo Seller no banco de dados
+            await _context.SaveChangesAsync(); // Insere e grava o novo Seller no banco de dados
         }
 
         // Remove a partir do id do Seller
-        public void Remove(int id)
+        public async Task RemoveAsync(int id)
         {
-            var obj = _context.Seller.Find(id); // Recupera o Seller de acordo com o id
+            var obj = await _context.Seller.FindAsync(id); // Recupera o Seller de acordo com o id
             _context.Seller.Remove(obj); // Remove o Seller retorno em obj
-            _context.SaveChanges(); // Remove e grava a remoção no banco de dados
+            await _context.SaveChangesAsync(); // Remove e grava a remoção no banco de dados
         }
 
-        public void Update(Seller obj)
+        public async Task UpdateAsync(Seller obj)
         {
-
+            bool hasAny = await _context.Seller.AnyAsync(x => x.Id == obj.Id);
             // Se não existir o registro no banco gera uma exceção NotFoundException
-            if (! _context.Seller.Any(x => x.Id == obj.Id )) // Any testa se existe registro no banco
+            if (!hasAny) // Any testa se existe registro no banco
             {
                 throw new NotFoundException ("Id not found");
             }
             try
             {
                 _context.Update(obj); // Atualiza o Seller
-                _context.SaveChanges(); // Atualiza e grava o Seller no banco de dados
+                await _context.SaveChangesAsync(); // Atualiza e grava o Seller no banco de dados
             }
             // Se ocorrer exceçao do banco por conflito de concorrência no banco(DbUpdateConcurrencyException)
             // Recupera a exceção de banco e a relança como uma exceção de nível de serviço(separando as camadas)
