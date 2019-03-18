@@ -12,33 +12,33 @@
     <dl class="dl-horizontal">
         <dt>
             <!--dt - Nome do campo-->
-            @Html.DisplayNameFor(model => Model.Name)
+            @Html.DisplayNameFor(model => Model.Name):
         </dt>
         <dd>
             <!--dd - Valor do campo-->
             @Html.DisplayFor(model => Model.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => Model.Email)
+            @Html.DisplayNameFor(model => Model.Email):
         </dt>
         <dd>
             @Html.DisplayFor(model => Model.Email)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => Model.BirthDate)
+            @Html.DisplayNameFor(model => Model.BirthDate):
         </dt>
         <dd>
             @Html.DisplayFor(model => Model.BirthDate)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => Model.BaseSalary)
+            @Html.DisplayNameFor(model => Model.BaseSalary):
         </dt>
         <dd>
             @Html.DisplayFor(model => Model.BaseSalary)
         </dd>
         <!--Eager loading(Exibição do department do Seller), carrega outros objetos atrelados ao objeto principal(Join das tabelas)-->
         <dt>
-            @Html.DisplayNameFor(model => Model.Department)
+            @Html.DisplayNameFor(model => Model.Department):
         </dt>
         <dd>
             @Html.DisplayFor(model => Model.Department.Name)
